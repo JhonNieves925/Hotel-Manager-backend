@@ -83,22 +83,23 @@ public class ReservaService {
             .formaPago(request.getFormaPago())
             .estadoReserva(EstadoReserva.pendiente)
             .observaciones(request.getObservaciones())
+            .idHuespedUsuario(request.getIdHuespedUsuario())
             .build();
 
         reserva = reservaRepository.save(reserva);
 
         // Crear huésped vinculado
         Huesped huesped = Huesped.builder()
-            .reserva(reserva)
-            .nombre(request.getHuesped().getNombre())
-            .apellido(request.getHuesped().getApellido())
-            .fechaNacimiento(request.getHuesped().getFechaNacimiento())
-            .nacionalidad(request.getHuesped().getNacionalidad())
-            .telefono(request.getHuesped().getTelefono())
-            .email(request.getHuesped().getEmail())
-            .tipoDocumento(request.getHuesped().getTipoDocumento())
-            .numeroDocumento(request.getHuesped().getNumeroDocumento())
-            .build();
+        	    .reserva(reserva)
+        	    .nombre(request.getHuesped().getNombre())
+        	    .apellido(request.getHuesped().getApellido())
+        	    .fechaNacimiento(request.getHuesped().getFechaNacimiento()) // puede ser null
+        	    .nacionalidad(request.getHuesped().getNacionalidad())
+        	    .telefono(request.getHuesped().getTelefono())
+        	    .email(request.getHuesped().getEmail())
+        	    .tipoDocumento(request.getHuesped().getTipoDocumento())
+        	    .numeroDocumento(request.getHuesped().getNumeroDocumento())
+        	    .build();
 
         huespedRepository.save(huesped);
 

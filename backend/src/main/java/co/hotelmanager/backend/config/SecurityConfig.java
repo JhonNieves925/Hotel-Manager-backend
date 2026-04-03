@@ -47,26 +47,38 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .authorizeHttpRequests(auth -> auth
 
-                .requestMatchers(
-                    "/api/auth/login",
-                    "/api/habitaciones/disponibles",
-                    "/api/habitaciones/{id}",
-                    "/api/reservas"
-                ).permitAll()
+            		// Públicos — sin token
+            	    .requestMatchers(
+            	        "/api/auth/login",
+            	        "/api/huesped-auth/login",
+            	        "/api/huesped-auth/register",
+            	        "/api/habitaciones/disponibles",
+            	        "/api/habitaciones/{id}",
+            	        "/api/reservas",
+            	        "/api/reservas/{id}"
+            	    ).permitAll()
 
-                .requestMatchers(
-                    "/api/auth/register",
-                    "/api/usuarios/**"
-                ).hasRole("ADMIN")
+            	    // Solo admin
+            	    .requestMatchers(
+            	        "/api/auth/register",
+            	        "/api/usuarios/**"
+            	    ).hasRole("ADMIN")
 
-                .requestMatchers(
-                    "/api/reportes/**",
-                    "/api/reservas/**",
-                    "/api/huespedes/**",
-                    "/api/habitaciones/**"
-                ).hasAnyRole("ADMIN", "EMPLEADO")
+            	    // Solo huésped registrado
+            	    .requestMatchers(
+            	        "/api/huesped-perfil/**",
+            	        "/api/huesped-reservas/**"
+            	    ).hasRole("HUESPED")
 
-                .anyRequest().authenticated()
+            	    // Admin y empleado
+            	    .requestMatchers(
+            	        "/api/reportes/**",
+            	        "/api/reservas/**",
+            	        "/api/huespedes/**",
+            	        "/api/habitaciones/**"
+            	    ).hasAnyRole("ADMIN", "EMPLEADO")
+
+            	    .anyRequest().authenticated()
             )
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)

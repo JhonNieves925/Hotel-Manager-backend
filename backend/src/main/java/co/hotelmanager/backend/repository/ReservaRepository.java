@@ -14,6 +14,8 @@ import java.util.List;
 
 @Repository
 public interface ReservaRepository extends JpaRepository<Reserva, Integer> {
+	
+	List<Reserva> findByIdHuespedUsuario(Integer idHuespedUsuario);
 
     // Reservas por estado — para filtrar en el panel del empleado
     List<Reserva> findByEstadoReserva(EstadoReserva estado);

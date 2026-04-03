@@ -62,6 +62,9 @@ public class Reserva {
 
     @OneToMany(mappedBy = "reserva", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Pago> pagos;
+    
+    @Column(name = "id_huesped_usuario")
+    private Integer idHuespedUsuario;
 
     @PrePersist
     protected void onCreate() {

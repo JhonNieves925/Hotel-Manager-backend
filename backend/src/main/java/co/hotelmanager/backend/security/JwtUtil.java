@@ -1,4 +1,6 @@
 package co.hotelmanager.backend.security;
+import co.hotelmanager.backend.model.HuespedUsuario;
+
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
@@ -59,6 +61,22 @@ public class JwtUtil {
         final String email = extractEmail(token);
         return email.equals(userDetails.getUsername()) && !isTokenExpired(token);
     }
+    
+    public String generateTokenHuesped(HuespedUsuario huesped) {
+        return Jwts.builder()
+            .subject(huesped.getEmail())
+            .claim("id",  huesped.getId())
+            .claim("rol", "huesped")
+            .issuedAt(new Date())
+            .expiration(new Date(System.currentTimeMillis() + expirationMs))
+            .signWith(getSigningKey())
+            .compact();
+    }
+    
+    public String extractRol(String token) {
+        Claims claims = extractAllClaims(token);
+        return (String) claims.get("rol");
+    }
 
     private boolean isTokenExpired(String token) {
         return extractAllClaims(token).getExpiration().before(new Date());
@@ -71,4 +89,5 @@ public class JwtUtil {
             .parseSignedClaims(token)
             .getPayload();
     }
+    
 }

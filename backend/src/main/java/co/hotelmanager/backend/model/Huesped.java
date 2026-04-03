@@ -28,7 +28,7 @@ public class Huesped {
     @Column(nullable = false, length = 80)
     private String apellido;
 
-    @Column(name = "fecha_nacimiento", nullable = false)
+    @Column(name = "fecha_nacimiento")
     private LocalDate fechaNacimiento;
 
     @Column(nullable = false, length = 60)

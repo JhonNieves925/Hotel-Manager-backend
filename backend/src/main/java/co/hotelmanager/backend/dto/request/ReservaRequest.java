@@ -30,4 +30,6 @@ public class ReservaRequest {
     // Datos del huésped — vienen junto con la reserva
     @NotNull(message = "Los datos del huésped son obligatorios")
     private HuespedRequest huesped;
+    
+    private Integer idHuespedUsuario;
 }
