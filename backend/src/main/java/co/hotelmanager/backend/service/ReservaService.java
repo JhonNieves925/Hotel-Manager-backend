@@ -1,5 +1,6 @@
 package co.hotelmanager.backend.service;
 
+import co.hotelmanager.backend.dto.request.ReservaEditRequest;
 import co.hotelmanager.backend.dto.request.ReservaRequest;
 import co.hotelmanager.backend.dto.response.ReservaResponse;
 import co.hotelmanager.backend.exception.HabitacionOcupadaException;
@@ -165,6 +166,99 @@ public class ReservaService {
 
         return ReservaResponse.from(reservaRepository.save(reserva));
     }
+ 
+
+     @Transactional
+     public ReservaResponse editar(Integer id, ReservaEditRequest request) {
+         Reserva reserva = obtenerEntidad(id);
+
+         // Solo se puede editar si está pendiente o confirmada
+         if (reserva.getEstadoReserva() == EstadoReserva.completada ||
+             reserva.getEstadoReserva() == EstadoReserva.cancelada) {
+             throw new IllegalStateException(
+                 "No se puede editar una reserva " + reserva.getEstadoReserva()
+             );
+         }
+
+         // Cambio de habitación o fechas
+         boolean cambioHabitacion = request.getIdHabitacion() != null &&
+             !request.getIdHabitacion().equals(reserva.getHabitacion().getId());
+         boolean cambioFechas = (request.getFechaEntrada() != null &&
+             !request.getFechaEntrada().equals(reserva.getFechaEntrada())) ||
+             (request.getFechaSalida() != null &&
+             !request.getFechaSalida().equals(reserva.getFechaSalida()));
+
+         LocalDate nuevaEntrada = request.getFechaEntrada() != null
+             ? request.getFechaEntrada() : reserva.getFechaEntrada();
+         LocalDate nuevaSalida  = request.getFechaSalida() != null
+             ? request.getFechaSalida()  : reserva.getFechaSalida();
+
+         Habitacion nuevaHabitacion = cambioHabitacion
+             ? habitacionService.obtenerEntidadPorId(request.getIdHabitacion())
+             : reserva.getHabitacion();
+
+         // Verificar disponibilidad si cambió habitación o fechas
+         if (cambioHabitacion || cambioFechas) {
+             List<Reserva> conflictos = reservaRepository.findReservasActivasEnRango(
+                 nuevaHabitacion.getId(), nuevaEntrada, nuevaSalida
+             ).stream()
+              .filter(r -> !r.getId().equals(id)) // excluir la propia reserva
+              .toList();
+
+             if (!conflictos.isEmpty()) {
+                 throw new HabitacionOcupadaException(
+                     nuevaHabitacion.getNumero(),
+                     nuevaEntrada.toString(),
+                     nuevaSalida.toString()
+                 );
+             }
+
+             // Si cambió de habitación, liberar la anterior y ocupar la nueva
+             if (cambioHabitacion) {
+                 habitacionService.cambiarEstado(
+                     reserva.getHabitacion().getId(), Habitacion.Estado.disponible
+                 );
+                 habitacionService.cambiarEstado(
+                     nuevaHabitacion.getId(), Habitacion.Estado.ocupada
+                 );
+             }
+
+             // Recalcular valor total
+             long noches = ChronoUnit.DAYS.between(nuevaEntrada, nuevaSalida);
+             BigDecimal nuevoTotal = nuevaHabitacion.getTipo()
+                 .getPrecioNoche()
+                 .multiply(BigDecimal.valueOf(noches));
+
+             reserva.setHabitacion(nuevaHabitacion);
+             reserva.setFechaEntrada(nuevaEntrada);
+             reserva.setFechaSalida(nuevaSalida);
+             reserva.setValorTotal(nuevoTotal);
+         }
+
+         // Actualizar forma de pago y observaciones
+         if (request.getFormaPago() != null) {
+             reserva.setFormaPago(request.getFormaPago());
+         }
+         if (request.getObservaciones() != null) {
+             reserva.setObservaciones(request.getObservaciones());
+         }
+
+         // Actualizar datos del huésped si vienen
+         if (reserva.getHuesped() != null) {
+             if (request.getNombreHuesped() != null && !request.getNombreHuesped().isBlank())
+                 reserva.getHuesped().setNombre(request.getNombreHuesped());
+             if (request.getApellidoHuesped() != null && !request.getApellidoHuesped().isBlank())
+                 reserva.getHuesped().setApellido(request.getApellidoHuesped());
+             if (request.getTelefonoHuesped() != null && !request.getTelefonoHuesped().isBlank())
+                 reserva.getHuesped().setTelefono(request.getTelefonoHuesped());
+             if (request.getEmailHuesped() != null && !request.getEmailHuesped().isBlank())
+                 reserva.getHuesped().setEmail(request.getEmailHuesped());
+             huespedRepository.save(reserva.getHuesped());
+         }
+
+         return ReservaResponse.from(reservaRepository.save(reserva));
+     }
+    
 
     // Eliminar reserva — solo admin
     @Transactional

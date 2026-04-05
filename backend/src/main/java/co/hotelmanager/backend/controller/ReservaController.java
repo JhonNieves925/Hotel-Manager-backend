@@ -1,5 +1,6 @@
 package co.hotelmanager.backend.controller;
 
+import co.hotelmanager.backend.dto.request.ReservaEditRequest;
 import co.hotelmanager.backend.dto.request.ReservaRequest;
 import co.hotelmanager.backend.dto.response.ReservaResponse;
 import co.hotelmanager.backend.model.Reserva.EstadoReserva;
@@ -64,6 +65,15 @@ public class ReservaController {
         return ResponseEntity.ok(
             reservaService.cambiarEstado(id, nuevoEstado)
         );
+    }
+    
+    @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN','EMPLEADO')")
+    public ResponseEntity<ReservaResponse> editar(
+        @PathVariable Integer id,
+        @RequestBody ReservaEditRequest request
+    ) {
+        return ResponseEntity.ok(reservaService.editar(id, request));
     }
 
     // DELETE /api/reservas/{id} — solo admin

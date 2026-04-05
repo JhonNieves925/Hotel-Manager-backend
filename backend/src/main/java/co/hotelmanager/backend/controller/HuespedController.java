@@ -27,7 +27,7 @@ public class HuespedController {
         dto.put("id",              h.getId());
         dto.put("nombre",          h.getNombre());
         dto.put("apellido",        h.getApellido());
-        dto.put("fechaNacimiento", h.getFechaNacimiento().toString());
+        dto.put("fechaNacimiento", h.getFechaNacimiento() != null ? h.getFechaNacimiento().toString() : "");
         dto.put("nacionalidad",    h.getNacionalidad());
         dto.put("telefono",        h.getTelefono());
         dto.put("email",           h.getEmail() != null ? h.getEmail() : "");
