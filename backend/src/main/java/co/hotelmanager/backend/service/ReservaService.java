@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
@@ -79,6 +80,8 @@ public class ReservaService {
             .usuario(usuario)
             .fechaEntrada(request.getFechaEntrada())
             .fechaSalida(request.getFechaSalida())
+            .horaEntrada(request.getHoraEntrada() != null ? request.getHoraEntrada() : LocalTime.of(15, 0))
+            .horaSalida(request.getHoraSalida()   != null ? request.getHoraSalida()  : LocalTime.of(12, 0))
             .valorTotal(valorTotal)
             .formaPago(request.getFormaPago())
             .estadoReserva(EstadoReserva.pendiente)
@@ -109,8 +112,11 @@ public class ReservaService {
 
         ReservaResponse response = ReservaResponse.from(obtenerEntidad(reserva.getId()));
 
-        // Enviar email de confirmación de forma asíncrona (no bloquea la respuesta)
-        emailService.enviarConfirmacionReserva(response);
+        // Enviar email de confirmación pasando el email directamente del request
+        // Esto evita problemas con la carga lazy del huésped en el response
+        String emailHuesped  = request.getHuesped() != null ? request.getHuesped().getEmail()  : null;
+        String nombreHuesped = request.getHuesped() != null ? request.getHuesped().getNombre() : null;
+        emailService.enviarConfirmacionReserva(response, emailHuesped, nombreHuesped);
 
         return response;
     }

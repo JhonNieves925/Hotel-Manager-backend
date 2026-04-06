@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 
 @Getter
 @Setter
@@ -21,6 +22,10 @@ public class ReservaRequest {
     @NotNull(message = "La fecha de salida es obligatoria")
     @Future(message = "La fecha de salida debe ser futura")
     private LocalDate fechaSalida;
+    
+    private LocalTime horaEntrada;
+    
+    private LocalTime horaSalida;
 
     @NotNull(message = "La forma de pago es obligatoria")
     private FormaPago formaPago;

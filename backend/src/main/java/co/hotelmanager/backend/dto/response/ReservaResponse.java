@@ -7,6 +7,7 @@ import lombok.Getter;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @Getter
 @Builder
@@ -17,6 +18,8 @@ public class ReservaResponse {
     private String tipoHabitacion;
     private LocalDate fechaEntrada;
     private LocalDate fechaSalida;
+    private LocalTime horaEntrada;
+    private LocalTime horaSalida;
     private Integer noches;
     private BigDecimal valorTotal;
     private String formaPago;
@@ -57,6 +60,8 @@ public class ReservaResponse {
             .tipoHabitacion(reserva.getHabitacion().getTipo().getNombre())
             .fechaEntrada(reserva.getFechaEntrada())
             .fechaSalida(reserva.getFechaSalida())
+            .horaEntrada(reserva.getHoraEntrada())
+            .horaSalida(reserva.getHoraSalida())
             .noches((int) noches)
             .valorTotal(reserva.getValorTotal())
             .formaPago(reserva.getFormaPago().name())

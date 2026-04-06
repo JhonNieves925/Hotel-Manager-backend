@@ -6,6 +6,7 @@ import lombok.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 @Entity
@@ -34,6 +35,14 @@ public class Reserva {
 
     @Column(name = "fecha_salida", nullable = false)
     private LocalDate fechaSalida;
+    
+    @Column(name = "hora_entrada")
+    @Builder.Default
+    private LocalTime horaEntrada = LocalTime.of(15, 0);
+    
+    @Column(name = "hora_salida")
+    @Builder.Default
+    private LocalTime horaSalida = LocalTime.of(12, 0);
 
     @Column(name = "valor_total", nullable = false, precision = 10, scale = 2)
     @Builder.Default
