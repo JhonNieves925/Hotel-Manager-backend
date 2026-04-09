@@ -32,6 +32,7 @@ public class ReservaService {
     private final PagoRepository    pagoRepository;
     private final HabitacionService habitacionService;
     private final EmailService      emailService;
+    private final NotificacionPushService pushService;
 
     // ── Listar todas ──────────────────────────────────────────
     public List<ReservaResponse> listarTodas() {
@@ -242,7 +243,25 @@ public class ReservaService {
             );
         }
 
-        return ReservaResponse.from(reservaRepository.save(reserva));
+        ReservaResponse response = ReservaResponse.from(reservaRepository.save(reserva));
+
+        // Notificación push al huésped registrado
+        if (nuevoEstado == EstadoReserva.confirmada && reserva.getIdHuespedUsuario() != null) {
+            pushService.enviarNotificacion(
+                reserva.getIdHuespedUsuario(),
+                "¡Reserva confirmada!",
+                "Tu reserva #" + reserva.getId() + " ha sido confirmada. ¡Te esperamos!"
+            );
+        }
+        if (nuevoEstado == EstadoReserva.cancelada && reserva.getIdHuespedUsuario() != null) {
+            pushService.enviarNotificacion(
+                reserva.getIdHuespedUsuario(),
+                "Reserva cancelada",
+                "Tu reserva #" + reserva.getId() + " ha sido cancelada."
+            );
+        }
+
+        return response;
     }
 
     // ── Eliminar reserva ──────────────────────────────────────

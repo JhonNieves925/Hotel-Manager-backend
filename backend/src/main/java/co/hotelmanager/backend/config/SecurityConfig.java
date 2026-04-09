@@ -55,7 +55,8 @@ public class SecurityConfig {
             	        "/api/habitaciones/disponibles",
             	        "/api/habitaciones/{id}",
             	        "/api/reservas",
-            	        "/api/reservas/{id}"
+            	        "/api/reservas/{id}",
+            	        "/api/push/vapid-key"
             	    ).permitAll()
 
             	    // Solo admin
@@ -67,7 +68,9 @@ public class SecurityConfig {
             	    // Solo huésped registrado
             	    .requestMatchers(
             	        "/api/huesped-perfil/**",
-            	        "/api/huesped-reservas/**"
+            	        "/api/huesped-reservas/**",
+            	        "/api/push/suscribir",
+            	        "/api/push/cancelar"
             	    ).hasRole("HUESPED")
 
             	    // Admin y empleado
